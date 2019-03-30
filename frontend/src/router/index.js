@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import Chat from '../components/chat/chat'
+import Chatroom from '../components/chatroom/chatroom'
+import ChatroomUser from '../components/chatroom/chatroom-user/chatroom-user'
 
 Vue.use(Router)
 
@@ -8,8 +10,20 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
-    }
-  ]
+      redirect: '/chatroom'
+    },
+    {
+      path: '/chatroom',  // 聊天打字界面
+      component: Chatroom,
+      children: [
+        {
+          path: 'user',
+          component: ChatroomUser
+        }
+      ]
+    },
+    {
+      path: '/chat',  // 第一栏：微信
+      component: Chat
+    }]
 })
