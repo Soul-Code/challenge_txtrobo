@@ -2,14 +2,14 @@
   <transition name="slide">
     <div class="chatroom">
       <div class="back">
-        <router-link to='/chat' >
-          <img class="img" src="../../assets/返回.png" @click='clearContent' height="16" width="19" />
-        </router-link>
-        <span class="dissname">{{this.info.dissname}}</span>
-        <span class="logo" @click="gotoUser(info)">
-          <img src="../../assets/我.png" height="28" width="28">
-          <!-- <span class="icon-user"></span> -->
-        </span>
+<!--        <router-link to='/chat' >-->
+        <!--          <img class="img" src="../../assets/返回.png" @click='clearContent' height="16" width="19" />-->
+        <!--        </router-link>-->
+        <span class="dissname">聊天机器人</span>
+<!--        <span class="logo" @click="gotoUser(info)">-->
+<!--          <img src="../../assets/我.png" height="28" width="28">-->
+<!--          &lt;!&ndash; <span class="icon-user"></span> &ndash;&gt;-->
+<!--        </span>-->
       </div>
       <div class="content">
         <div class="content-wrapper" ref="wrapper">
@@ -34,9 +34,9 @@
       </div>
       <div class="bottom">
         <div class="send">
-          <input 
-            type="text" 
-            placeholder="请输入聊天内容" 
+          <input
+            type="text"
+            placeholder="请输入聊天内容"
             class="sText"
             ref="sTest"
           />
@@ -118,9 +118,9 @@
         this.$router.back()   // 返回上一级
       },
       gotoUser (info) {
-        this.$router.push({
-          path: `/chatroom/user`
-        })
+        // this.$router.push({
+        //   path: `/chatroom/user`
+        // })
       },
       sendContent () {
         this.text = this.$refs.sTest.value
@@ -130,15 +130,38 @@
             askContent: this.text
           })
 
-          setTimeout(() => {
-            this.content.push({
-              replyImg: '',
-              replyContent: this.randomReply[Math.floor(Math.random() * 19)]
+          var postdata = {}
+          postdata.txt = this.text
+          this.$axios({
+            method: 'post',
+            url: 'http://soulcode.cn/txtrobo/',
+            data: this.$qs.stringify(postdata),
+            contentType: 'application/json; charset=utf-8'
+          })
+            .then(response => {
+              console.log(response.data.answer)
+              this.content.push({
+                replyImg: '',
+                replyContent: response.data.answer
+              })
+              for (let i = 0; i < this.content.length; i++) { // 定义回复者的头像
+                this.content[i].replyImg = 'http://static.bbs.9wee.com/attachment/forum/201306/07/210751qbp4p4c5yzhhbpym.jpg'
+              }
             })
-            for (let i = 0; i < this.content.length; i++) { // 定义回复者的头像
-              this.content[i].replyImg = this.info.imgurl
-            }
-          }, 1000)
+            // 错误处理
+            .catch(error => {
+              console.log(error)
+            })
+
+            // setTimeout(() => {
+            //   this.content.push({
+            //     replyImg: '',
+            //     replyContent: this.randomReply[Math.floor(Math.random() * 19)]
+            //   })
+            //   for (let i = 0; i < this.content.length; i++) { // 定义回复者的头像
+            //     this.content[i].replyImg = this.info.imgurl
+            //   }
+            // }, 1000)
         }
         this.$refs.sTest.value = '' // 清空输入框的内容
       },
@@ -157,12 +180,12 @@
     left: 0;
     right: 0;
     z-index: 19;
-    background-color: #ebebeb;
+    background-color: #ffffff;
   }
   .back{
-    background: #1e2b39;
+    background: #ededed;
     height: 50px;
-    color: #fff;
+    color: #000000;
     position: fixed;
     width: 100%;
   }
@@ -178,8 +201,8 @@
     top: 25px;
     margin-top: -10px;
     left: 50px;
-    padding-left: 10px;
-    border-left: 1px solid #000;
+    padding-left: 80px;
+    /*border-left: 1px solid #000;*/
   }
   .back .logo{
     position: absolute;
@@ -255,7 +278,7 @@
     float: left;
     padding: 3px 10px;
     max-width: 190px;
-    background: #fff;
+    background: #ededed;
   }
   .bottom{
     position: fixed;
@@ -263,10 +286,11 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #fff;
+    background-color: #ededed;
   }
   .send{
     display: flex;
+    background-color: #ededed;
   }
   .sText{
     flex: 6;
@@ -274,7 +298,7 @@
     margin: 10px;
     border: 0;
     padding-left: 8px;
-    border-bottom: 1px solid rgba(153,153,153,0.8);
+    /*border-bottom: 1px solid rgba(153,153,153,0.8);*/
     /*border: 1px solid rgba(153,153,153,0.8);*/
     font-size: 15px;
   }
@@ -290,9 +314,9 @@
     border-radius: 5px;
     /*float: right;*/
     text-align: center;
-    font-size: 18px;
+    font-size: 14px;
     color: white;
-    background-color: #09BB07;
+    background-color: #08C261;
   }
 
   .slide-enter-active,.slide-leave-active{
