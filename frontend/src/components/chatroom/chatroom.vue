@@ -270,7 +270,7 @@
     float: right;
     padding: 3px 10px;
     max-width: 182px;
-    background: #228b22;
+    background: #08C261;
     color: #fff;
   }
   .reply p {
