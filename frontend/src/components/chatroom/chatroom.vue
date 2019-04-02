@@ -1,30 +1,30 @@
 <template>
   <transition name="slide">
-    <div class="chatroom" >
+    <div class="chatroom">
       <div class="back">
-<!--        <router-link to='/chat' >-->
+        <!--        <router-link to='/chat' >-->
         <!--          <img class="img" src="../../assets/返回.png" @click='clearContent' height="16" width="19" />-->
         <!--        </router-link>-->
         <span class="dissname">聊天机器人</span>
-<!--        <span class="logo" @click="gotoUser(info)">-->
-<!--          <img src="../../assets/我.png" height="28" width="28">-->
-<!--          &lt;!&ndash; <span class="icon-user"></span> &ndash;&gt;-->
-<!--        </span>-->
+        <!--        <span class="logo" @click="gotoUser(info)">-->
+        <!--          <img src="../../assets/我.png" height="28" width="28">-->
+        <!--          &lt;!&ndash; <span class="icon-user"></span> &ndash;&gt;-->
+        <!--        </span>-->
       </div>
       <div class="content">
-        <div class="content-wrapper" ref="wrapper">
+        <div class="content-wrapper" ref="xwBody">
           <div class="content-text">
-            <div class="content-top">
-              <p>————现在可以和我聊天了————</p>
-            </div>
+            <!--            <div class="content-top">-->
+            <!--              <p>————现在可以和我聊天了————</p>-->
+            <!--            </div>-->
             <div class="content-body" ref="body">
               <ul class="inHtml" v-for="item in content">
-                <li class="ask"  v-show="item.askContent">
-                  <img :src="item.askImg" />
+                <li class="ask" v-show="item.askContent">
+                  <img :src="item.askImg"/>
                   <p>{{item.askContent}}</p>
                 </li>
                 <li class="reply" v-show="item.replyContent">
-                  <img :src="item.replyImg" />
+                  <img :src="item.replyImg"/>
                   <p>{{item.replyContent}}</p>
                 </li>
               </ul>
@@ -40,7 +40,7 @@
             class="sText"
             ref="sTest"
           />
-          <input type="button" class="btn" value="发送" @click="sendContent" />
+          <input type="button" class="btn" value="发送" @click="sendContent"/>
         </div>
       </div>
       <router-view></router-view>
@@ -108,9 +108,16 @@
     },
     mounted () {
       this.$nextTick(() => {
-        this.scroll = new BScroll(this.$refs.wrapper, {
-          click: true
-        })
+        if (!this.scroll) {
+          this.scroll = new BScroll(this.$refs.wrapper, {
+            click: true
+          })
+          console.log(this.scroll)
+        } else if (!this.$refs.wrapper) {
+          return
+        } else {
+          this.scroll.refresh()
+        }
       })
     },
     methods: {
@@ -152,28 +159,46 @@
             .catch(error => {
               console.log(error)
             })
+          this.scrollToBottom()
 
-            // setTimeout(() => {
-            //   this.content.push({
-            //     replyImg: '',
-            //     replyContent: this.randomReply[Math.floor(Math.random() * 19)]
-            //   })
-            //   for (let i = 0; i < this.content.length; i++) { // 定义回复者的头像
-            //     this.content[i].replyImg = this.info.imgurl
-            //   }
-            // }, 1000)
+          // setTimeout(() => {
+          //   this.content.push({
+          //     replyImg: '',
+          //     replyContent: this.randomReply[Math.floor(Math.random() * 19)]
+          //   })
+          //   for (let i = 0; i < this.content.length; i++) { // 定义回复者的头像
+          //     this.content[i].replyImg = this.info.imgurl
+          //   }
+          // }, 1000)
         }
         this.$refs.sTest.value = '' // 清空输入框的内容
       },
       clearContent () {
         this.content = []
+      },
+      scrollToBottom () {
+        setTimeout(() => {
+          // 滚动条长度
+          var currentDistance = this.$refs.xwBody.scrollHeight - this.$refs.xwBody.clientHeight
+          console.log(currentDistance)
+          // 当前滚动条距离顶部的距离
+          var currentScrollY = this.$refs.xwBody.scrollTop
+          if (currentDistance > 0 && currentDistance > currentScrollY) {
+            currentScrollY = Math.ceil((currentDistance - currentScrollY) / 10) + currentScrollY
+            currentScrollY = currentScrollY > currentDistance ? currentDistance : currentScrollY
+            // 微信和qq浏览器不支持 scrollTo？
+            this.$refs.xwBody.scrollTo(0, currentScrollY)
+            this.$refs.xwBody.scrollTop = currentScrollY
+            this.scrollToBottom()
+          }
+        }, 13)
       }
     }
   }
 </script>
 
 <style scoped>
-  .chatroom{
+  .chatroom {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -182,7 +207,8 @@
     z-index: 19;
     background-color: #ffffff;
   }
-  .back{
+
+  .back {
     background: #ededed;
     height: 50px;
     color: #000000;
@@ -192,12 +218,14 @@
     /*padding-left: 44%;*/
 
   }
-  .back .img{
+
+  .back .img {
     position: absolute;
     top: 25px;
     margin-top: -8px;
   }
-  .back .dissname{
+
+  .back .dissname {
     position: relative;
     font-size: 20px;
     top: 15px;
@@ -205,14 +233,16 @@
     /*text-align: center;*/
     /*border-left: 1px solid #000;*/
   }
-  .back .logo{
+
+  .back .logo {
     position: absolute;
     font-size: 20px;
     top: 30px;
     margin-top: -15px;
     right: 20px;
   }
-  .content{
+
+  .content {
     position: fixed;
     top: 50px;
     bottom: 50px;
@@ -220,53 +250,64 @@
     right: 0;
     /*border: 1px solid red;*/
   }
-  .content-wrapper{
+
+  .content-wrapper {
     height: 100%;
     overflow: hidden;
   }
-  .content-top{
+
+  .content-top {
     font-size: 14px;
-    color: rgba(153,153,153,0.6);
+    color: rgba(153, 153, 153, 0.6);
     text-align: center;
     margin-top: 4px;
   }
-  .content-body{
+
+  .content-body {
     position: relative;
     padding: 20px 10px;
     /*overflow: hidden;*/
     /*border: 1px solid blue;*/
   }
+
   .content-body li {
     position: relative;
     overflow: hidden;
     margin-bottom: 15px;
     line-height: 28px;
   }
+
   .inHtml img {
     position: relative;
     width: 30px;
     height: 30px;
   }
+
   .ask {
     text-align: right;
   }
+
   .reply {
     text-align: left;
   }
+
   .ask img {
     float: right;
     margin-left: 15px;
   }
+
   .reply img {
     float: left;
     margin-right: 15px;
   }
+
   .reply p, .ask p {
     border-radius: 4px;
     text-align: left;
     font: 14px 'Microsoft YaHei';
     line-height: 30px;
   }
+
   .ask p {
     float: right;
     padding: 3px 10px;
@@ -274,6 +315,7 @@
     background: #08C261;
     color: #fff;
   }
+
   .reply p {
     left: 2pc;
     float: left;
@@ -281,7 +323,8 @@
     max-width: 190px;
     background: #ededed;
   }
-  .bottom{
+
+  .bottom {
     position: fixed;
     height: 50px;
     bottom: 0;
@@ -289,11 +332,13 @@
     right: 0;
     background-color: #ededed;
   }
-  .send{
+
+  .send {
     display: flex;
     background-color: #ededed;
   }
-  .sText{
+
+  .sText {
     flex: 6;
     height: 30px;
     margin: 10px;
@@ -303,10 +348,12 @@
     /*border: 1px solid rgba(153,153,153,0.8);*/
     font-size: 15px;
   }
-  .sText.active{
+
+  .sText.active {
     background-color: red;
   }
-  .btn{
+
+  .btn {
     flex: 1;
     width: 65px;
     height: 30px;
@@ -320,10 +367,11 @@
     background-color: #08C261;
   }
 
-  .slide-enter-active,.slide-leave-active{
+  .slide-enter-active, .slide-leave-active {
     transition: all 0.3s;
   }
-  .slide-enter,.slide-leave-to{
+
+  .slide-enter, .slide-leave-to {
     transform: translate3d(100%, 0, 0);
   }
 </style>
