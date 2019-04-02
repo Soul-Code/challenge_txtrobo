@@ -1,6 +1,6 @@
 <template>
   <transition name="slide">
-    <div class="chatroom">
+    <div class="chatroom" >
       <div class="back">
 <!--        <router-link to='/chat' >-->
         <!--          <img class="img" src="../../assets/返回.png" @click='clearContent' height="16" width="19" />-->
@@ -188,20 +188,21 @@
     color: #000000;
     position: fixed;
     width: 100%;
+    text-align: center;
+    /*padding-left: 44%;*/
+
   }
   .back .img{
     position: absolute;
     top: 25px;
     margin-top: -8px;
-    left: 14px;
   }
   .back .dissname{
-    position: absolute;
+    position: relative;
     font-size: 20px;
-    top: 25px;
-    margin-top: -10px;
-    left: 50px;
-    padding-left: 80px;
+    top: 15px;
+
+    /*text-align: center;*/
     /*border-left: 1px solid #000;*/
   }
   .back .logo{
