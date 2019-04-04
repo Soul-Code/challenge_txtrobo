@@ -1,15 +1,6 @@
 <template>
   <div id="app">
-    <div>
-      <div class="app-header">
-        <div class="title">微信</div>
-        <router-link tag="div" class="search" to="/search">
-          <img src="./assets/搜索.png" height="20" width="20">
-        </router-link>
-        <div class="plus" @click="logClick">
-          <img src="./assets/加号.png" height="20" width="20">
-        </div>
-      </div>
+
       <keep-alive>
         <router-view></router-view>
       </keep-alive>
@@ -177,40 +168,8 @@ html, body {
   bottom: 6px;
   left: 0px;
 }
-.tab-link-1{
-  background: url('./assets/tab/微信.png') no-repeat center 6px;
-  background-size: 20px 20px;
-}
-.tab-link-2{
-  background: url('./assets/tab/通讯录.png') no-repeat center 6px;
-  background-size: 20px 20px;
-}
-.tab-link-3{
-  background: url('./assets/tab/发现.png') no-repeat center 8px;
-  background-size: 16px 16px;
-}
-.tab-link-4{
-  background: url('./assets/tab/我.png') no-repeat center 8px;
-  background-size: 16px 16px;
-}
+
 .router-link-active .tab-link{
   color: #09BB07;
 }
-.router-link-active .tab-link-1{
-  background: url('./assets/tab/微信1.png') no-repeat center 6px;
-  background-size: 20px 20px;
-}
-.router-link-active .tab-link-2{
-  background: url('./assets/tab/通讯录1.png') no-repeat center 6px;
-  background-size: 20px 20px;
-}
-.router-link-active .tab-link-3{
-  background: url('./assets/tab/发现1.png') no-repeat center 8px;
-  background-size: 16px 16px;
-}
-.router-link-active .tab-link-4{
-  background: url('./assets/tab/我1.png') no-repeat center 8px;
-  background-size: 16px 16px;
-}
-
 </style>

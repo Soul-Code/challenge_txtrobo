@@ -4,7 +4,6 @@ import 'mint-ui/lib/style.css'
 import App from './App'
 import router from './router'
 import store from './store'
-import VueLazyLoad from 'vue-lazyload'
 import VueResource from 'vue-resource'
 import axios from 'axios'
 
@@ -17,10 +16,6 @@ Vue.prototype.$qs = qs
 
 Vue.use(MintUI)
 Vue.prototype.$axios = axios
-
-Vue.use(VueLazyLoad, {
-  loading: require('./assets/lazy.png')
-})
 
 Vue.use(VueResource)
 
