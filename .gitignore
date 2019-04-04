@@ -110,3 +110,4 @@ yarn-error.log*
 *.njsproj
 *.sln
 txtrobo\migrations
+txtrobo/migrations/0001_initial.py
