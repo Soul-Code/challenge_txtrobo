@@ -9,6 +9,7 @@ class Bayes:
     stopwords_path = ''
     train_class = []
     stopwords = ''
+    train_rate = 0 #训练集比例
 
 
     """
@@ -53,7 +54,8 @@ class Bayes:
         random.shuffle(train_data)
         self.stopwords = self.load_stop()
         data = [(self.get_features(data), g) for (data, g) in train_data]
-        train_set,test_set = data[:50],data[50:]
+        # 根据训练集比例划分数据
+        train_set,test_set = data[:int(len(data)*self.train_rate)],data[int(len(data)*self.train_rate):]
         classifier = nltk.NaiveBayesClassifier.train(train_set)
         f = open('my_classifier.pickle', 'wb')
         pickle.dump(classifier, f)
@@ -79,6 +81,7 @@ class Bayes:
 
 if __name__ == "__main__":
     classifier1 = Bayes()
+    classifier1.train_rate = 0.7
     classifier1.train_path = 'manualdata.txt'
     classifier1.stopwords_path = '停用词.txt'
     classifier1.train()
