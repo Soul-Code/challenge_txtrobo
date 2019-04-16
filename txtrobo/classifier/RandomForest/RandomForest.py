@@ -2,7 +2,7 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pickle
 import jieba
-from . import models
+
 
 def manualLabel(dataset, label):
     for i in dataset:
@@ -97,23 +97,24 @@ class RFmodel:
         return self.clf.predict([data])
 
 
-model = RFmodel()
-# model.trainPath = 'dataRF.txt'
-# model.train()
-# model.saveModel('RFM.dat')
-# model.loadModel('RFM.dat')
-# model.testPath = 'dataRT.txt'
-# model.test()
+if __name__ == '__main__':
+    model = RFmodel()
+    # model.trainPath = 'dataRF.txt'
+    # model.train()
+    # model.saveModel('RFM.dat')
+    # model.loadModel('RFM.dat')
+    # model.testPath = 'dataRT.txt'
+    # model.test()
 
-model.trainPath = 'testT.txt'
-model.train()
-record = '校车宝山校区'  # input()
-C1 = model.classify(record)
-modelS = RFmodel()
-modelS.trainPath = 'testT{}.txt'.format(int(C1))
-modelS.train()
-print(C1, ':', modelS.classify(record))
-# model.testPath = 'testT1.txt'
-# model.test()
+    model.trainPath = 'testT.txt'
+    model.train()
+    record = '校车宝山校区'  # input()
+    C1 = model.classify(record)
+    modelS = RFmodel()
+    modelS.trainPath = 'testT{}.txt'.format(int(C1))
+    modelS.train()
+    print(C1, ':', modelS.classify(record))
+    # model.testPath = 'testT1.txt'
+    # model.test()
 
-# model.manualTest()
+    # model.manualTest()
