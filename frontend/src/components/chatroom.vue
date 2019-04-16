@@ -2,14 +2,7 @@
   <transition name="slide">
     <div class="chatroom">
       <div class="back">
-        <!--        <router-link to='/chat' >-->
-        <!--          <img class="img" src="../../assets/返回.png" @click='clearContent' height="16" width="19" />-->
-        <!--        </router-link>-->
         <span class="dissname">聊天机器人</span>
-        <!--        <span class="logo" @click="gotoUser(info)">-->
-        <!--          <img src="../../assets/我.png" height="28" width="28">-->
-        <!--          &lt;!&ndash; <span class="icon-user"></span> &ndash;&gt;-->
-        <!--        </span>-->
       </div>
       <div class="content">
         <div class="content-wrapper" ref="xwBody">
@@ -18,13 +11,13 @@
             <!--              <p>————现在可以和我聊天了————</p>-->
             <!--            </div>-->
             <div class="content-body" ref="body">
-              <ul class="inHtml" v-for="item in content">
+              <ul class="inHtml" :key="item" v-for="item in content">
                 <li class="ask" v-show="item.askContent">
-                  <img :src="item.askImg"/>
+                  <img :src="item.askImg">
                   <p>{{item.askContent}}</p>
                 </li>
                 <li class="reply" v-show="item.replyContent">
-                  <img :src="item.replyImg"/>
+                  <img :src="item.replyImg">
                   <p>{{item.replyContent}}</p>
                 </li>
               </ul>
@@ -34,13 +27,8 @@
       </div>
       <div class="bottom">
         <div class="send">
-          <input
-            type="text"
-            placeholder="请输入聊天内容"
-            class="sText"
-            ref="sTest"
-          />
-          <input type="button" class="btn" value="发送" @click="sendContent"/>
+          <input v-on:keyup.enter="sendContent" type="text" placeholder="请输入聊天内容" class="sText" ref="sTest">
+          <input type="button" class="btn" value="发送" @click="sendContent">
         </div>
       </div>
       <router-view></router-view>
@@ -49,39 +37,17 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import BScroll from 'better-scroll'
+  import BScroll from "better-scroll";
 
-  import {mapGetters} from 'vuex'
+  import {mapGetters} from "vuex";
 
   export default {
     components: {
       BScroll
     },
-    data () {
+    data() {
       return {
-        text: '', // 输入框的文字
-        randomReply: [
-          '你谁啊？',
-          '请你再说一遍！',
-          '想和我聊天？得先夸我！',
-          '我不知道你在讲什么。。。',
-          '不好意思，我不想和你说话。',
-          '先告诉我你是谁。',
-          '竖子不足以谋也！',
-          '我选择沉默',
-          '来吧，一起吹牛逼。。',
-          '我很困，不想聊天',
-          '别废话，先给我讲个笑话',
-          '你从哪里来',
-          '心情不好，最好别搭理我',
-          '等我忙完再回复你',
-          '敢问尊姓大名',
-          '近来可好？',
-          '看来你是想和我聊天',
-          '你是要请我吃饭吗？',
-          '先给我一个让我回复你的理由',
-          '哈哈哈'
-        ],
+        text: "",
         content: [
           // {
           //   askImg: require('../../assets/me/minion.png'),
@@ -96,70 +62,60 @@
           //   replyContent: '你猜啊'
           // }
         ]
-      }
+      };
     },
     computed: {
-      ...mapGetters([
-        'info'
-      ])
+      ...mapGetters(["info"])
     },
-    created () {
-
+    created() {
     },
-    mounted () {
+    mounted() {
       this.$nextTick(() => {
         if (!this.scroll) {
           this.scroll = new BScroll(this.$refs.wrapper, {
             click: true
-          })
-          console.log(this.scroll)
+          });
+          console.log(this.scroll);
         } else if (!this.$refs.wrapper) {
-          return
+          return;
         } else {
-          this.scroll.refresh()
+          this.scroll.refresh();
         }
-      })
+      });
     },
     methods: {
-      back () {
-        this.$router.back()   // 返回上一级
+      back() {
+        this.$router.back(); // 返回上一级
       },
-      gotoUser (info) {
-        // this.$router.push({
-        //   path: `/chatroom/user`
-        // })
-      },
-      sendContent () {
-        this.text = this.$refs.sTest.value
-        if (this.text !== '') {
+      sendContent() {
+        this.text = this.$refs.sTest.value;
+        if (this.text !== "") {
           this.content.push({
-            askImg: require('../../assets/me/minion.png'),
+            askImg: require("../assets/me/minion.png"),
             askContent: this.text
-          })
+          });
 
-          var postdata = {}
-          postdata.txt = this.text
-          this.$axios({
-            method: 'post',
-            url: 'http://soulcode.cn/txtrobo/',
-            data: this.$qs.stringify(postdata),
-            contentType: 'application/json; charset=utf-8'
-          })
-            .then(response => {
-              console.log(response.data.answer)
+          var postdata = {};
+          postdata.txt = this.text;
+          this.$axios
+            .post("http://127.0.0.1:8000/txtrobo/api/chat", postdata)
+            .then(res => {
+              console.log(res.data.answer);
               this.content.push({
-                replyImg: '',
-                replyContent: response.data.answer
-              })
-              for (let i = 0; i < this.content.length; i++) { // 定义回复者的头像
-                this.content[i].replyImg = 'http://static.bbs.9wee.com/attachment/forum/201306/07/210751qbp4p4c5yzhhbpym.jpg'
+                replyImg: "",
+                replyContent: res.data.answer
+              });
+              for (let i = 0; i < this.content.length; i++) {
+                // 定义回复者的头像
+                this.content[i].replyImg =
+                  "http://static.bbs.9wee.com/attachment/forum/201306/07/210751qbp4p4c5yzhhbpym.jpg";
               }
             })
             // 错误处理
             .catch(error => {
-              console.log(error)
-            })
-          this.scrollToBottom()
+              console.log(error);
+            });
+          this.scrollToBottom();
 
           // setTimeout(() => {
           //   this.content.push({
@@ -171,30 +127,33 @@
           //   }
           // }, 1000)
         }
-        this.$refs.sTest.value = '' // 清空输入框的内容
+        this.$refs.sTest.value = ""; // 清空输入框的内容
       },
-      clearContent () {
-        this.content = []
+      clearContent() {
+        this.content = [];
       },
-      scrollToBottom () {
+      scrollToBottom() {
         setTimeout(() => {
           // 滚动条长度
-          var currentDistance = this.$refs.xwBody.scrollHeight - this.$refs.xwBody.clientHeight
-          console.log(currentDistance)
+          var currentDistance =
+            this.$refs.xwBody.scrollHeight - this.$refs.xwBody.clientHeight;
+          console.log(currentDistance);
           // 当前滚动条距离顶部的距离
-          var currentScrollY = this.$refs.xwBody.scrollTop
+          var currentScrollY = this.$refs.xwBody.scrollTop;
           if (currentDistance > 0 && currentDistance > currentScrollY) {
-            currentScrollY = Math.ceil((currentDistance - currentScrollY) / 10) + currentScrollY
-            currentScrollY = currentScrollY > currentDistance ? currentDistance : currentScrollY
+            currentScrollY =
+              Math.ceil((currentDistance - currentScrollY) / 10) + currentScrollY;
+            currentScrollY =
+              currentScrollY > currentDistance ? currentDistance : currentScrollY;
             // 微信和qq浏览器不支持 scrollTo？
-            this.$refs.xwBody.scrollTo(0, currentScrollY)
-            this.$refs.xwBody.scrollTop = currentScrollY
-            this.scrollToBottom()
+            this.$refs.xwBody.scrollTo(0, currentScrollY);
+            this.$refs.xwBody.scrollTop = currentScrollY;
+            this.scrollToBottom();
           }
-        }, 13)
+        }, 13);
       }
     }
-  }
+  };
 </script>
 
 <style scoped>
@@ -216,7 +175,6 @@
     width: 100%;
     text-align: center;
     /*padding-left: 44%;*/
-
   }
 
   .back .img {
@@ -283,6 +241,10 @@
     height: 30px;
   }
 
+  .inHtml {
+    padding: 0;
+  }
+
   .ask {
     text-align: right;
   }
@@ -301,10 +263,11 @@
     margin-right: 15px;
   }
 
-  .reply p, .ask p {
+  .reply p,
+  .ask p {
     border-radius: 4px;
     text-align: left;
-    font: 14px 'Microsoft YaHei';
+    font: 14px "Microsoft YaHei";
     line-height: 30px;
   }
 
@@ -312,7 +275,7 @@
     float: right;
     padding: 3px 10px;
     max-width: 182px;
-    background: #08C261;
+    background: #08c261;
     color: #fff;
   }
 
@@ -344,8 +307,6 @@
     margin: 10px;
     border: 0;
     padding-left: 8px;
-    /*border-bottom: 1px solid rgba(153,153,153,0.8);*/
-    /*border: 1px solid rgba(153,153,153,0.8);*/
     font-size: 15px;
   }
 
@@ -364,14 +325,6 @@
     text-align: center;
     font-size: 14px;
     color: white;
-    background-color: #08C261;
-  }
-
-  .slide-enter-active, .slide-leave-active {
-    transition: all 0.3s;
-  }
-
-  .slide-enter, .slide-leave-to {
-    transform: translate3d(100%, 0, 0);
+    background-color: #08c261;
   }
 </style>
