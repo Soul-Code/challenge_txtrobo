@@ -2,6 +2,7 @@ import random
 import nltk
 import jieba
 import pickle
+from . import models
 
 class Bayes:
     train_path = ''
