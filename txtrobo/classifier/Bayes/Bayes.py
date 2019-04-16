@@ -2,6 +2,7 @@ import random
 import nltk
 import jieba
 import pickle
+from . import models
 
 
 class Bayes:
@@ -59,10 +60,10 @@ class Bayes:
         # print('traindata', train_data)
         random.shuffle(self.train_data)
         self.stopwords = self.load_stop()
-        data = [(self.get_features(data), g) for (data, g) in self.train_data]
-        train_set, test_set = data[:50], data[50:]
-        classifier = nltk.NaiveBayesClassifier.train(train_set)
-        # print(type(classifier))
+        data = [(self.get_features(data), g) for (data, g) in train_data]
+        # # 根据训练集比例划分数据
+        # train_set,test_set = data[:int(len(data)*self.train_rate)],data[int(len(data)*self.train_rate):]
+        classifier = nltk.NaiveBayesClassifier.train(data)
         f = open('my_classifier.pickle', 'wb')
         pickle.dump(classifier, f)
         f.close()
