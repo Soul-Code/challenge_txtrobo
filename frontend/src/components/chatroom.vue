@@ -6,7 +6,7 @@
       </div>
       <div class="content">
         <div class="content-wrapper" ref="xwBody">
-          <div class="content-text">
+          <div class="content-text" >
             <!--            <div class="content-top">-->
             <!--              <p>————现在可以和我聊天了————</p>-->
             <!--            </div>-->
@@ -45,6 +45,20 @@
     components: {
       BScroll
     },
+    props: {
+      probeType: {
+        type: Number,
+        default: 1
+      },
+      click: {
+        type: Boolean,
+        default: true
+      },
+      data: {
+        type: Array,
+        default: null
+      },
+    },
     data() {
       return {
         text: "",
@@ -70,18 +84,18 @@
     created() {
     },
     mounted() {
-      this.$nextTick(() => {
-        if (!this.scroll) {
-          this.scroll = new BScroll(this.$refs.wrapper, {
-            click: true
-          });
-          console.log(this.scroll);
-        } else if (!this.$refs.wrapper) {
-          return;
-        } else {
-          this.scroll.refresh();
-        }
-      });
+      // this.$nextTick(() => {
+      //   if (!this.scroll) {
+      //     this.scroll = new BScroll(this.$refs.xwBody, {
+      //       click: true,
+      //       scrollY:true
+      //     });
+      //   } else if (!this.$refs.xwBody) {
+      //     return;
+      //   } else {
+      //     this.scroll.refresh();
+      //   }
+      // });
     },
     methods: {
       back() {
@@ -116,16 +130,6 @@
               console.log(error);
             });
           this.scrollToBottom();
-
-          // setTimeout(() => {
-          //   this.content.push({
-          //     replyImg: '',
-          //     replyContent: this.randomReply[Math.floor(Math.random() * 19)]
-          //   })
-          //   for (let i = 0; i < this.content.length; i++) { // 定义回复者的头像
-          //     this.content[i].replyImg = this.info.imgurl
-          //   }
-          // }, 1000)
         }
         this.$refs.sTest.value = ""; // 清空输入框的内容
       },
@@ -133,24 +137,29 @@
         this.content = [];
       },
       scrollToBottom() {
+        // setTimeout(() => {
+        //   // 滚动条长度
+        //   var currentDistance =
+        //     this.$refs.xwBody.scrollHeight - this.$refs.xwBody.clientHeight;
+        //   console.log(currentDistance);
+        //   // 当前滚动条距离顶部的距离
+        //   var currentScrollY = this.$refs.xwBody.scrollTop;
+        //   if (currentDistance > 0 && currentDistance > currentScrollY) {
+        //     currentScrollY =
+        //       Math.ceil((currentDistance - currentScrollY) / 10) + currentScrollY;
+        //     currentScrollY =
+        //       currentScrollY > currentDistance ? currentDistance : currentScrollY;
+        //     // 微信和qq浏览器不支持 scrollTo？
+        //     this.$refs.xwBody.scrollTo(0, currentScrollY);
+        //     this.$refs.xwBody.scrollTop = currentScrollY;
+        //     this.scrollToBottom();
+        //   }
+        // }, 13);
         setTimeout(() => {
-          // 滚动条长度
-          var currentDistance =
-            this.$refs.xwBody.scrollHeight - this.$refs.xwBody.clientHeight;
-          console.log(currentDistance);
-          // 当前滚动条距离顶部的距离
-          var currentScrollY = this.$refs.xwBody.scrollTop;
-          if (currentDistance > 0 && currentDistance > currentScrollY) {
-            currentScrollY =
-              Math.ceil((currentDistance - currentScrollY) / 10) + currentScrollY;
-            currentScrollY =
-              currentScrollY > currentDistance ? currentDistance : currentScrollY;
-            // 微信和qq浏览器不支持 scrollTo？
-            this.$refs.xwBody.scrollTo(0, currentScrollY);
-            this.$refs.xwBody.scrollTop = currentScrollY;
-            this.scrollToBottom();
-          }
-        }, 13);
+          this.$refs.xwBody.scrollTop = this.$refs.xwBody.scrollHeight
+          // 滚轮便宜位置下移
+          this.scrollToBottom() //再做一次 避免只是下移了我方增加的对话框
+        },13) // 避免下移到倒数第二个对话框
       }
     }
   };
