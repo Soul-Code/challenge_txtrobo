@@ -4,22 +4,20 @@ import 'mint-ui/lib/style.css'
 import App from './App'
 import router from './router'
 import store from './store'
-import VueLazyLoad from 'vue-lazyload'
 import axios from 'axios'
 
 // /* eslint-disable no-unused-vars */  // 这一句必须写，用来规避ES6的语法检测
 // import vConsole from 'vconsole'  // 针对手机网页的前端 console 调试面板
 // console.log('test')
+Vue.use(MintUI);
+Vue.prototype.$axios = axios;
 
-Vue.use(MintUI)
-Vue.prototype.$axios = axios
-
-Vue.use(VueLazyLoad, {
-  loading: require('./assets/lazy.png')
-})
+// Vue.use(VueLazyLoad, {
+//   loading: require('./assets/lazy.png')
+// })
 
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 new Vue({
@@ -27,4 +25,4 @@ new Vue({
   router,
   store,
   render: h => h(App)
-})
+});

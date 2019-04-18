@@ -2,17 +2,26 @@ from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pickle
 import jieba
+import os
 
-
-def manualLabel(dataset, label):
-    for i in dataset:
-        i.append(label)
+from django.conf import settings
 
 
 class RFmodel:
     trainPath = ''
     testPath = ''
-    clf = RandomForestClassifier()
+    PUNCTUATIONS = list('！!？?｡.＂"\'{}[]\\`~＃＄％＆＇（）()＊＋，-－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏.')
+    STOPWORDS = ['请问', '的', '吗', '是', '我', '呢', '啊']
+    s2l = {'校车': '1', '校园网': '2', '银行、ATM': '3', '快递': '4', '打印店': '5', '在校事务': '6', '校医院': '7'}
+    jieba.load_userdict('txtrobo/classifier/manualword.txt')
+
+    def __init__(self):
+        self.dictionary = []
+        self.classes = []
+        self.data = []
+        self.model_forest1 = RandomForestClassifier()
+        self.model_forest2 = {}
+        self.model_dir = os.path.join(settings.BASE_DIR, 'txtrobo', 'classifier', 'models', 'RandomForest')
 
     """
     the file should be well constructed
@@ -20,58 +29,41 @@ class RFmodel:
     if label not contained, need to tag manually
     """
 
-    def loadTrainSet(self):
-        dataMat = []
-        fr = open(self.trainPath)
-        for line in fr.readlines():
-            curLine = line.strip().split('\t')
-            fltLine = list(map(float, curLine))
-            dataMat.append(fltLine)
-        return dataMat
-
-    def loadTestSet(self):
-        dataMat = []
-        fr = open(self.testPath)
-        for line in fr.readlines():
-            curLine = line.strip().split('\t')
-            fltLine = list(map(float, curLine))
-            dataMat.append(fltLine)
-        return dataMat
+    def load_data(self, classes, data):
+        self.classes = classes
+        self.data = data
 
     def train(self):
-        trainData = np.array(self.loadTrainSet())
-        self.clf.fit(trainData[:, :-1], trainData[:, -1])
+        self.dictionary, forest1, forest2 = self.transfer_data(self.data, self.classes)
+        trainData = np.array(forest1)
+        print(trainData)
+        self.model_forest1.fit(trainData[:, :-1], trainData[:, -1])
+        for key, value in forest2.items():
+            value = np.array(value)
+            print(value)
+            model2 = RandomForestClassifier()
+            model2.fit(value[:, :-1], value[:, -1])
+            self.model_forest2[key] = model2
 
-    def test(self):
-        testData = np.array(self.loadTestSet())
-        result = self.clf.predict(testData[:, :-1])
-        print('%4s%4s' % ('实际', '预测'))
-        for i in range(len(testData[:, -1])):
-            print('%6s%6s' % (testData[i, -1], result[i]))
+    def saveModel(self):
+        with open(os.path.join(self.model_dir, 'classifier_forest1.pickle'), 'wb') as f:
+            pickle.dump(self.model_forest1, f)
+        with open(os.path.join(self.model_dir, 'classifier_forest2.pickle'), 'wb') as f:
+            pickle.dump(self.model_forest2, f)
+        with open(os.path.join(self.model_dir, 'classes.pickle'), 'wb') as f:
+            pickle.dump(self.classes, f)
+        with open(os.path.join(self.model_dir, 'dictionary.pickle'), 'wb') as f:
+            pickle.dump(self.dictionary, f)
 
-    def manualTest(self):
-        dataset = ['校车什么时候发车？', '校医院能拔牙吗？', '新世纪快递点在哪里？', '我要取现。', '校园网信号差！']
-        f = open('Tvec.txt')
-        string = f.readlines()[0].strip().split('\t')
-        f.close()
-        vecs = []
-        for data in dataset:
-            curVec = []
-            for s in string:
-                curVec.append(1 if s in data else 0)
-            vecs.append(curVec)
-        vecs = np.array(vecs)
-        print(self.clf.predict(vecs))
-
-    def saveModel(self, file):
-        f = open(file, 'wb')
-        pickle.dump(self.clf, f)
-        f.close()
-
-    def loadModel(self, file):
-        f = open(file, 'rb')
-        self.clf = pickle.load(f)
-        f.close()
+    def loadModel(self):
+        with open(os.path.join(self.model_dir, 'classifier_forest1.pickle'), 'rb') as f:
+            self.model_forest1 = pickle.load(f)
+        with open(os.path.join(self.model_dir, 'classifier_forest2.pickle'), 'rb') as f:
+            self.model_forest2 = pickle.load(f)
+        with open(os.path.join(self.model_dir, 'classes.pickle'), 'rb') as f:
+            self.classes = pickle.load(f)
+        with open(os.path.join(self.model_dir, 'dictionary.pickle'), 'rb') as f:
+            self.dictionary = pickle.load(f)
 
     """
     record is a string need to be classifyied
@@ -79,41 +71,81 @@ class RFmodel:
 
     def preprocess(self, record):
         vec = []
-        f = open('Tvec.txt')
-        wordsStored = []
-        for i in f.readlines():
-            wordsStored.extend(i.split('\t'))
-        f.close()
-        for word in wordsStored:
+        for word in self.dictionary:
             if word in record:
                 vec.append(1)
             else:
                 vec.append(0)
         return np.array(vec)
 
-    def classify(self, record):
-        data = self.preprocess(record)
+    def use(self, txt_in, flow=None):
+        data = self.preprocess(txt_in)
+        if flow is None:
+            # 一层随机森林
+            return self.model_forest1.predict([data])
+            # 二层随机森林
+        else:
+            return self.model_forest2[flow.name].predict([data])
         # print(data)
-        return self.clf.predict([data])
+
+    def transfer_data(self, data, classes):
+        dataset = np.array(data)
+        self.classes = classes
+        # 获取词典
+        vocabulary = []
+        for i in range(dataset.shape[0]):
+            vocabulary.extend(jieba.lcut(dataset[i][0]))
+        vocabulary = set(vocabulary)
+        # 移除标点符号
+        for punc in self.PUNCTUATIONS:
+            if punc in vocabulary:
+                vocabulary.remove(punc)
+        # 移除停用词
+        for word in self.STOPWORDS:
+            if word in vocabulary:
+                vocabulary.remove(word)
+        vocabulary = list(vocabulary)
+        vecs = []
+
+        for i in range(dataset.shape[0]):
+            sentence = jieba.lcut(dataset[i][0])
+            curVec = []
+            for j in vocabulary:
+                curVec.append(1 if j in sentence else 0)
+            curVec.append(dataset[i, 2])
+            curVec.append(dataset[i, 1])
+            vecs.append(curVec)
+        vecs = np.array(vecs)
+
+        forest1 = []
+        for i in vecs:
+            forest1.append(np.append(i[:-2], i[-1]))
+
+        forest2 = {}
+        for _class in classes:
+            class_data = [j[:-1] for j in vecs if j[-1] == _class]
+            for j in class_data:
+                if _class in forest2:
+                    forest2[_class].append(j)
+                else:
+                    forest2[_class] = [j]
+        return vocabulary, forest1, forest2
 
 
 if __name__ == '__main__':
     model = RFmodel()
-    # model.trainPath = 'dataRF.txt'
-    # model.train()
-    # model.saveModel('RFM.dat')
-    # model.loadModel('RFM.dat')
-    # model.testPath = 'dataRT.txt'
-    # model.test()
 
-    model.trainPath = 'testT.txt'
+    classes = ['校车', '校园网', '银行、ATM', '快递', '打印店', '在校事务', '校医院']
+    model.load_data(classes, 1)
     model.train()
+    model.saveModel()
     record = '校车宝山校区'  # input()
-    C1 = model.classify(record)
-    modelS = RFmodel()
-    modelS.trainPath = 'testT{}.txt'.format(int(C1))
-    modelS.train()
-    print(C1, ':', modelS.classify(record))
+    C1 = model.use(record)
+    print(C1)
+    # modelS = RFmodel()
+    # modelS.trainPath = 'testT{}.txt'.format(int(C1))
+    # modelS.train()
+    # print(C1, ':', modelS.classify(record))
     # model.testPath = 'testT1.txt'
     # model.test()
 

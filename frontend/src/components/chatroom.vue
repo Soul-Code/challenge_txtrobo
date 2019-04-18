@@ -98,7 +98,7 @@
           var postdata = {};
           postdata.txt = this.text;
           this.$axios
-            .post("http://127.0.0.1:8000/txtrobo/api/chat", postdata)
+            .post("http://soulcode.cn:8080/txtrobo/api/chat", postdata)
             .then(res => {
               console.log(res.data.answer);
               this.content.push({

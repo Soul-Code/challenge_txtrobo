@@ -1,17 +1,18 @@
-import random
-import nltk
-import jieba
 import pickle
-from . import models
+import random
+import os
+
+import jieba
+import nltk
+from django.conf import settings
 
 
 class Bayes:
     def __init__(self):
-        self.train_path = ''
-        self.stopwords_path = ''
         self.train_class = []
-        self.stopwords = ''
+        self.stopwords = []
         self.train_data = []
+        self.model_dir = os.path.join(settings.BASE_DIR, 'txtrobo', 'classifier', 'models', 'Bayes')
 
     """
         提取特征用于贝叶斯模型训练
@@ -29,7 +30,7 @@ class Bayes:
         加载数据 [(句子,类别),...]
     """
 
-    def load_data(self, data):
+    def load_data(self, data, classes):
         # ---从文件读取数据---现在改成从数据库读就注释吧
         # f = open(self.train_path)
         # data = f.readlines()
@@ -41,6 +42,7 @@ class Bayes:
         #     a = (x[0], x[1])
         #     list.append(a)
         self.train_data = data
+        self.train_class = classes
 
     """
         加载停用词 格式为[停用词,...] 列表
@@ -58,37 +60,44 @@ class Bayes:
     def train(self):
         # train_data = self.load_data()
         # print('traindata', train_data)
+        if not self.train_data:
+            print('请先load_data')
+            return False
         random.shuffle(self.train_data)
         self.stopwords = self.load_stop()
-        data = [(self.get_features(data), g) for (data, g) in train_data]
+        data = [(self.get_features(data), g) for (data, g) in self.train_data]
         # # 根据训练集比例划分数据
         # train_set,test_set = data[:int(len(data)*self.train_rate)],data[int(len(data)*self.train_rate):]
         classifier = nltk.NaiveBayesClassifier.train(data)
-        f = open('my_classifier.pickle', 'wb')
-        pickle.dump(classifier, f)
-        f.close()
+        with open(os.path.join(self.model_dir, 'my_classifier.pickle'), 'wb') as f:
+            pickle.dump(classifier, f)
+        with open(os.path.join(self.model_dir, 'classes.pickle'), 'wb') as f:
+            pickle.dump(self.train_class, f)
+        return True
 
     """
         使用模型，如果对于每个类的分类概率都小于50%，则拒绝回答
     """
 
     def use(self, word_input):
+        ok = True
 
-        f = open('my_classifier.pickle', 'rb')
-        classifier = pickle.load(f)
-        f.close()
+        with open(os.path.join(self.model_dir, 'my_classifier.pickle'), 'rb') as f:
+            classifier = pickle.load(f)
+        with open(os.path.join(self.model_dir, 'classes.pickle'), 'rb') as f:
+            self.train_class = pickle.load(f)
         # 记录分类为每个类别的概率
         dic = {}
         for word in self.train_class:
             dic[word] = classifier.prob_classify(self.get_features(word_input)).prob(word)
         for key in dic:
             if dic[key] > 0.5:
-                return True
-        return False
+                return ok, dic
+        return not ok, dic
 
 
 if __name__ == "__main__":
     classifier1 = Bayes()
-    classifier1.train_path = '../manualdata.txt'
-    classifier1.train()
-    print(classifier1.use("Spring Boot 宇宙第一"))
+    # classifier1.train_path = '../manualdata.txt'
+    # classifier1.train()
+    print(classifier1.use("你还"))
