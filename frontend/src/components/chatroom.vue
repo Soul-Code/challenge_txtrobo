@@ -210,6 +210,7 @@
   }
 
   .content {
+
     position: fixed;
     top: 50px;
     bottom: 50px;
@@ -219,6 +220,7 @@
   }
 
   .content-wrapper {
+    background: url("../assets/background.jpg") 30px ;
     height: 100%;
     overflow: hidden;
   }
@@ -231,6 +233,7 @@
   }
 
   .content-body {
+
     position: relative;
     padding: 20px 10px;
     /*overflow: hidden;*/
