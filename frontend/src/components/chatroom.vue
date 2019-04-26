@@ -220,7 +220,7 @@
   }
 
   .content-wrapper {
-    background: url("../assets/background.jpg") 30px ;
+    background: url("../assets/background.jpg") center center ;
     height: 100%;
     overflow: hidden;
   }
