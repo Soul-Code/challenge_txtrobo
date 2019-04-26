@@ -18,7 +18,7 @@
                 </li>
                 <li class="reply" v-show="item.replyContent">
                   <img :src="item.replyImg">
-                  <p>{{item.replyContent}}</p>
+                  <p v-html="item.replyContent"></p>
                 </li>
               </ul>
             </div>
