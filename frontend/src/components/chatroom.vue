@@ -220,8 +220,10 @@
   }
 
   .content-wrapper {
-    background: url("../assets/background.jpg") center center ;
+    background: url("http://soulcode.cn/static/txtrobo/img/bkgrd.png") center center ;
     height: 100%;
+    background-size:cover;
+
     overflow: hidden;
   }
 
